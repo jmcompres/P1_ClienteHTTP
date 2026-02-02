@@ -1,9 +1,14 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'edu.pucmm.eict'
 version = '1.0-SNAPSHOT'
+
+application {
+    mainClass = 'edu.pucmm.eict.Main'
+}
 
 repositories {
     mavenCentral()

@@ -1,17 +1,35 @@
 package edu.pucmm.eict;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
+import java.util.Scanner;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ClienteHTTP cliente = new ClienteHTTP();
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
+        System.out.println("Práctica 1: Cliente HTTP");
+
+        while (true)
+        {
+            System.out.println("");
+            System.out.print("Ingrese una URL válida: ");
+            //String urlInput = sc.nextLine().trim();
+
+            /*Verificar la URL antes*/
+            try {
+                URI url = new URI(args[0]);
+                HttpResponse<String> respuesta = cliente.obtenerResponse(url);
+                System.out.println("Status: "+respuesta.statusCode());
+                System.out.println("Tipo de recurso: "+respuesta.headers().firstValue("Content-Type").orElse("Desconocido"));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 }
