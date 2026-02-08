@@ -21,11 +21,24 @@ public class Main {
         try {
             URL url = new URI(urlInput).toURL();
             HttpResponse<String> respuesta = cliente.obtenerResponse(url.toURI());
+            if (respuesta == null)
+            {
+                System.out.println("Error de conexion");
+            }
+            else
+            {
+                String tipoRecurso = respuesta.headers().firstValue("Content-Type").orElse("Desconocido");
+                System.out.println("Tipo de recurso: "+tipoRecurso);
 
-            String tipoRecurso = respuesta.headers().firstValue("Content-Type").orElse("Desconocido");
-            System.out.println("Tipo de recurso: "+tipoRecurso);
+                if (tipoRecurso.contains("text/html"))
+                {
+                    AnalizadorHTML analizador = new AnalizadorHTML();
+                    analizador.analizar(respuesta.body(),urlInput,cliente);
+                }
+                else { System.out.println("El recurso no es HTML, no se realizara el análisis detallado"); }
+            }
         } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
-            System.out.println("URL invalida");
+            System.out.println("URL invalida: "+e.getMessage());
         }
     }
 }

@@ -2,6 +2,7 @@ package edu.pucmm.eict;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -32,5 +33,20 @@ public class ClienteHTTP {
         } catch (InterruptedException | IOException e) {
             return null;                                      //En el main esto se toma como error de conexión
         }
+    }
+
+    public HttpResponse<String> enviarPractica(String urlDestino, String matricula) throws IOException, InterruptedException, URISyntaxException
+    {
+        String formData = "asignatura=practica1";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlDestino))
+                .header("Content-Type", "application/x-www-form-urlencoded") // Necesario para que el servidor entienda el form data
+                .header("matricula-id", matricula) // Header requerido
+                .POST(HttpRequest.BodyPublishers.ofString(formData))
+                .build();
+
+        System.out.println("    >> Enviando POST a: " + urlDestino);
+        return cliente.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }

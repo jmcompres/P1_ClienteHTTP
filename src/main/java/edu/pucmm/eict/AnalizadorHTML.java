@@ -6,21 +6,23 @@ import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 
 public class AnalizadorHTML {
 
     public AnalizadorHTML() {}
 
-    public void analizar(String html, ClienteHTTP cliente)
+    public void analizar(String html, String baseUrl, ClienteHTTP cliente)
     {
-        System.out.println("\n--- Análisis del Documento HTML ---");
+        System.out.println("\n--- Analisis del Documento HTML ---");
         System.out.println();
 
-        Document doc = Jsoup.parse(html);
+        Document doc = Jsoup.parse(html,baseUrl);
         System.out.println("Cantidad de lineas: " + html.lines().count());
         System.out.println("Cantidad de parrafos (<p>): " + doc.select("p").size());
-        System.out.println("Cantidad de imágenes (<img>) en parrafos (<p>): " + doc.select("p img").size());
+        System.out.println("Cantidad de imagenes (<img>) en parrafos (<p>): " + doc.select("p img").size());
 
         Elements formularios = doc.select("form");
         int postCount = 0;
@@ -28,24 +30,30 @@ public class AnalizadorHTML {
         System.out.println();
         System.out.println("Total de formularios (<form>): " + formularios.size());
 
-        ArrayList<String> infos = new ArrayList<String>(); //Esto para mostrar primero la categorización de métodos (que se determina en la iteración) y luego las informaciones
+        for (Element form : formularios)
+        {
+            String metodo = form.attr("method").toUpperCase();
+            if (metodo.equalsIgnoreCase("post")) { postCount++; }
+            else if (metodo.equalsIgnoreCase("get") || metodo.isEmpty()) { getCount++; }
+        }
+
+        System.out.println("Cant. formularios GET: "+getCount);
+        System.out.println("Cant. formularios POST: "+postCount);
 
         for (Element form : formularios)
         {
             String metodo = form.attr("method").toUpperCase();
 
-            if (metodo.equalsIgnoreCase("post")) { postCount++; }
-            else if (metodo.equalsIgnoreCase("get") || metodo.isEmpty()) { getCount++; }
-
-            infos.add("--> Analizando Formulario #" + (formularios.indexOf(form) + 1));
-            infos.add("    Método: " + metodo);
+            System.out.println("--> Analizando Formulario #" + (formularios.indexOf(form) + 1));
+            System.out.println("    Metodo: " + (metodo.isEmpty() ? "GET" : metodo));
 
             Elements inputs = form.select("input");
-            infos.add("    Inputs encontrados:");
-            for (Element input : inputs) {
+            System.out.println("    Inputs encontrados:");
+            for (Element input : inputs)
+            {
                 String nombre = input.attr("name");
                 String tipo = input.attr("type");
-                infos.add("    - Input: [Name: "+nombre+" | Type: "+tipo+ "]");
+                System.out.println("    - Input: [Name: "+nombre+" | Type: "+tipo+ "]");
             }
 
             if (metodo.equalsIgnoreCase("post"))
@@ -57,21 +65,16 @@ public class AnalizadorHTML {
                     String actionUrl = form.absUrl("action");
                     if(actionUrl.isEmpty()) actionUrl = form.attr("action"); //si absUrl falla (porque parseamos string directo), usamos el action raw
 
-                    infos.add("    [!] Formulario POST detectado. Enviando peticion de práctica...");
-                    var respuestaPost = cliente.enviarPractica(actionUrl, matricula);
+                    System.out.println("    [!] Formulario POST detectado. Enviando peticion de práctica...");
+                    HttpResponse<String> respuestaPost = cliente.enviarPractica(actionUrl, matricula);
 
-                    infos.add("    [!] Respuesta del servidor (POST): " + respuestaPost.statusCode());
+                    System.out.println("    [!] Respuesta del servidor (POST): " + respuestaPost.statusCode());
                 }
-                catch (IOException | InterruptedException e)
+                catch (IOException | InterruptedException | URISyntaxException e)
                 {
-                    infos.add("Error enviando el POST: " + e.getMessage());
+                    System.out.println("    Error enviando el POST: " + e.getMessage());
                 }
             }
         }
-
-        System.out.println("Cant. formularios GET: "+getCount);
-        System.out.println("Cant. formularios POST: "+postCount);
-
-        for (String s : infos) { System.out.println(s); }
     }
 }
