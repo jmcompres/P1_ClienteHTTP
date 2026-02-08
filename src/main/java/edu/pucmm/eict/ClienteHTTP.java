@@ -47,6 +47,20 @@ public class ClienteHTTP {
                 .build();
 
         System.out.println("    >> Enviando POST a: " + urlDestino);
+
+
+        System.out.println("    >> --- REPORTE DE ENVIO POST ---");
+
+        System.out.println("    >> [HEADERS]");
+        request.headers().map().forEach((k, v) -> {
+            System.out.println("    >>   " + k + ": " + v);
+        });
+
+        System.out.println("    >> [PARAMETROS]");
+        System.out.println("    >>   " + formData);
+        System.out.println("    >> -----------------------------");
+
+
         return cliente.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }

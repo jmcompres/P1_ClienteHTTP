@@ -6,7 +6,6 @@ import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 
@@ -70,9 +69,9 @@ public class AnalizadorHTML {
 
                     System.out.println("    [!] Respuesta del servidor (POST): " + respuestaPost.statusCode());
                 }
-                catch (IOException | InterruptedException | URISyntaxException e)
+                catch (IOException | InterruptedException | URISyntaxException | IllegalArgumentException e)
                 {
-                    System.out.println("    Error enviando el POST: " + e.getMessage());
+                    System.out.println("    Error enviando el POST: " + e.getMessage() + "(URL Relativa o se redirige a otra pagina que no es la base)");
                 }
             }
         }
