@@ -1,35 +1,31 @@
 package edu.pucmm.eict;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    public static void main(String[] args) {
+
+    public static void main() {
         Scanner sc = new Scanner(System.in);
         ClienteHTTP cliente = new ClienteHTTP();
 
-        System.out.println("Práctica 1: Cliente HTTP");
+        System.out.print("Ingrese una URL valida: ");
+        String urlInput = sc.nextLine().trim();
 
-        while (true)
-        {
-            System.out.println("");
-            System.out.print("Ingrese una URL válida: ");
-            //String urlInput = sc.nextLine().trim();
+        try {
+            URL url = new URI(urlInput).toURL();
+            HttpResponse<String> respuesta = cliente.obtenerResponse(url.toURI());
 
-            /*Verificar la URL antes*/
-            try {
-                URI url = new URI(args[0]);
-                HttpResponse<String> respuesta = cliente.obtenerResponse(url);
-                System.out.println("Status: "+respuesta.statusCode());
-                System.out.println("Tipo de recurso: "+respuesta.headers().firstValue("Content-Type").orElse("Desconocido"));
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-
+            String tipoRecurso = respuesta.headers().firstValue("Content-Type").orElse("Desconocido");
+            System.out.println("Tipo de recurso: "+tipoRecurso);
+        } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
+            System.out.println("URL invalida");
         }
     }
 }

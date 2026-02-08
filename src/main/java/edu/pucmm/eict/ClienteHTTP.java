@@ -10,7 +10,7 @@ import java.time.Duration;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class ClienteHTTP {
-    private HttpClient cliente;
+    private final HttpClient cliente;
 
     public ClienteHTTP()
     {
